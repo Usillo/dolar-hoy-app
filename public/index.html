@@ -6,7 +6,16 @@
   <title>Dólar Hoy Argentina</title>
   <meta name="description" content="Cotización del dólar blue, oficial, MEP, CCL, cripto y tarjeta en pesos argentinos. Se actualiza cada 2 horas.">
   <meta name="theme-color" content="#0a1230">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💵</text></svg>">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Dólar Hoy">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta property="og:title" content="Dólar Hoy Argentina">
+  <meta property="og:description" content="Cotización del dólar en pesos, actualizada cada 2 horas.">
+  <meta property="og:image" content="https://dolar-hoy-app.vercel.app/icons/icon-512.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -51,6 +60,9 @@
 
     /* ---------- Hero ---------- */
     .hero { position: relative; display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; align-items: center; padding: 48px 0 36px; }
+    .marca { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; font-weight: 700; font-size: 1.2rem; letter-spacing: -0.01em; }
+    .marca img { filter: drop-shadow(0 6px 18px rgba(255,201,60,.45)); }
+    .marca b { color: var(--sol); }
     .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--verde); box-shadow: 0 0 0 0 var(--verde); animation: latido 2s infinite; }
     @keyframes latido { 70% { box-shadow: 0 0 0 10px rgba(47,227,154,0); } 100% { box-shadow: 0 0 0 0 rgba(47,227,154,0); } }
@@ -168,6 +180,10 @@
   <main>
     <section class="hero">
       <div>
+        <div class="marca">
+          <img src="/icons/logo.svg" alt="" width="56" height="56">
+          <span>Dólar Hoy <b>AR</b></span>
+        </div>
         <span class="eyebrow"><span class="dot"></span> En vivo desde dolarhoy.com</span>
         <h1>El dólar hoy <br><span class="grad">en Argentina</span></h1>
         <p class="sub">Blue, oficial, MEP, contado con liqui, cripto y tarjeta. Todo en un solo lugar y actualizado cada 2 horas.</p>
