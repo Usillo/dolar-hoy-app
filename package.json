@@ -1,0 +1,8 @@
+{
+  "name": "dolar-hoy-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cotización del dólar en Argentina, tomada de dolarhoy.com y actualizada cada 2 horas",
+  "engines": { "node": ">=20" }
+}

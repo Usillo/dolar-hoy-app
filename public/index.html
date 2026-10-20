@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dólar Hoy Argentina</title>
+  <meta name="description" content="Cotización del dólar blue, oficial, MEP, CCL, cripto y tarjeta en pesos argentinos. Se actualiza cada 2 horas.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💵</text></svg>">
+  <style>
+    :root {
+      --bg: #f4f6f3; --card: #ffffff; --text: #14201a; --muted: #5f6d65;
+      --line: #e1e6e2; --accent: #0f7a4a; --accent-soft: #e3f2ea; --error: #b42318;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e1411; --card: #161e1a; --text: #e8efea; --muted: #94a39a;
+        --line: #26312b; --accent: #4cc68a; --accent-soft: #1b2e24; --error: #ff8a80;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.4;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 16px 48px; }
+    header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: end; justify-content: space-between; margin-bottom: 24px; }
+    h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: -0.02em; }
+    .sub { color: var(--muted); font-size: .9rem; margin: 4px 0 0; }
+    button {
+      font: inherit; font-size: .9rem; border: 1px solid var(--line); background: var(--card);
+      color: var(--text); padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    }
+    button:hover { border-color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+    .card.destacada { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .card h2 { margin: 0 0 12px; font-size: 1rem; font-weight: 600; }
+    .vals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .label { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; }
+    .val { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .val.na { color: var(--muted); font-weight: 400; }
+    .conv { margin-top: 28px; }
+    .conv h2 { margin: 0 0 12px; font-size: 1.1rem; }
+    .conv-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .conv input, .conv select {
+      font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
+      background: var(--bg); color: var(--text); min-width: 0;
+    }
+    .conv input { width: 140px; }
+    .conv .result { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .estado { color: var(--muted); font-size: .85rem; margin-top: 24px; }
+    .estado a { color: var(--accent); }
+    .error { color: var(--error); }
+    .skeleton { height: 112px; background: linear-gradient(90deg, var(--card), var(--line), var(--card)); background-size: 200% 100%; animation: sh 1.2s infinite; border-radius: 16px; }
+    @keyframes sh { to { background-position: -200% 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>💵 Dólar hoy en Argentina</h1>
+        <p class="sub">Cotizaciones en pesos · se actualizan cada 2 horas</p>
+      </div>
+      <button id="recargar" type="button">Recargar</button>
+    </header>
+
+    <section class="grid" id="grid" aria-live="polite">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </section>
+
+    <section class="card conv" id="conv" hidden>
+      <h2>Conversor</h2>
+      <div class="conv-row">
+        <input id="monto" type="number" inputmode="decimal" min="0" step="any" value="100" aria-label="Monto">
+        <select id="sentido" aria-label="Sentido">
+          <option value="usd">USD → pesos</option>
+          <option value="ars">Pesos → USD</option>
+        </select>
+        <select id="tipo" aria-label="Tipo de dólar"></select>
+        <span>=</span>
+        <span class="result" id="resultado">—</span>
+      </div>
+    </section>
+
+    <p class="estado" id="estado"></p>
+  </main>
+
+  <script>
+    const TWO_HOURS = 2 * 60 * 60 * 1000;
+    const ars = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 });
+    const usd = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+    const $ = (id) => document.getElementById(id);
+    let datos = null;
+
+    const fmt = (n) => n == null ? '<span class="val na">—</span>' : `<span class="val">${ars.format(n)}</span>`;
+    const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    function render() {
+      $('grid').innerHTML = datos.cotizaciones.map((c, i) => `
+        <article class="card${i === 0 ? ' destacada' : ''}">
+          <h2>${esc(c.nombre)}</h2>
+          <div class="vals">
+            <div><div class="label">Compra</div>${fmt(c.compra)}</div>
+            <div><div class="label">Venta</div>${fmt(c.venta)}</div>
+          </div>
+        </article>`).join('');
+
+      const sel = $('tipo'), prev = sel.value;
+      sel.innerHTML = datos.cotizaciones.map((c, i) => `<option value="${i}">${esc(c.nombre)}</option>`).join('');
+      if (prev && sel.options[prev]) sel.value = prev;
+      $('conv').hidden = false;
+      convertir();
+
+      const obtenido = new Date(datos.obtenido).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+      $('estado').innerHTML = `Fuente: <a href="${datos.fuente}" target="_blank" rel="noopener">dolarhoy.com</a>` +
+        (datos.actualizadoFuente ? ` · Actualizado en la fuente: ${esc(datos.actualizadoFuente)}` : '') +
+        ` · Consultado: ${obtenido}`;
+    }
+
+    function convertir() {
+      if (!datos) return;
+      const c = datos.cotizaciones[$('tipo').value];
+      const monto = parseFloat($('monto').value) || 0;
+      if ($('sentido').value === 'usd') {
+        const p = c.venta ?? c.compra; // pesos que pagás por cada dólar
+        $('resultado').textContent = p ? ars.format(monto * p) : '—';
+      } else {
+        const p = c.venta ?? c.compra;
+        $('resultado').textContent = p ? usd.format(monto / p) : '—';
+      }
+    }
+
+    async function cargar() {
+      try {
+        const r = await fetch('/api/cotizaciones');
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || 'Error al obtener cotizaciones');
+        datos = j;
+        render();
+      } catch (e) {
+        if (!datos) $('grid').innerHTML = '';
+        $('estado').innerHTML = `<span class="error">No se pudieron cargar las cotizaciones: ${esc(e.message)}</span>`;
+      }
+    }
+
+    ['monto', 'sentido', 'tipo'].forEach((id) => $(id).addEventListener('input', convertir));
+    $('recargar').addEventListener('click', cargar);
+    cargar();
+    setInterval(cargar, TWO_HOURS);
+  </script>
+</body>
+</html>
