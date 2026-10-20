@@ -5,109 +5,331 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dólar Hoy Argentina</title>
   <meta name="description" content="Cotización del dólar blue, oficial, MEP, CCL, cripto y tarjeta en pesos argentinos. Se actualiza cada 2 horas.">
+  <meta name="theme-color" content="#0a1230">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💵</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f4f6f3; --card: #ffffff; --text: #14201a; --muted: #5f6d65;
-      --line: #e1e6e2; --accent: #0f7a4a; --accent-soft: #e3f2ea; --error: #b42318;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0e1411; --card: #161e1a; --text: #e8efea; --muted: #94a39a;
-        --line: #26312b; --accent: #4cc68a; --accent-soft: #1b2e24; --error: #ff8a80;
-      }
+      --bg: #0a1230; --bg2: #101b45;
+      --text: #f2f6ff; --muted: #a9b6d8; --line: rgba(255,255,255,.12);
+      --glass: rgba(255,255,255,.06); --glass-strong: rgba(255,255,255,.1);
+      --celeste: #74c3ff; --sol: #ffc93c; --verde: #2fe39a; --rosa: #ff6fa8; --violeta: #9b7bff;
+      --error: #ff8a80;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      margin: 0; background: var(--bg); color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.4;
+      margin: 0; min-height: 100vh; color: var(--text); background: var(--bg);
+      font-family: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.4;
+      overflow-x: hidden;
     }
-    main { max-width: 960px; margin: 0 auto; padding: 32px 16px 48px; }
-    header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: end; justify-content: space-between; margin-bottom: 24px; }
-    h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: -0.02em; }
-    .sub { color: var(--muted); font-size: .9rem; margin: 4px 0 0; }
+
+    /* ---------- Fondo animado ---------- */
+    .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: radial-gradient(1200px 700px at 50% -10%, var(--bg2), var(--bg)); }
+    .blob { position: absolute; width: 520px; height: 520px; border-radius: 50%; filter: blur(90px); opacity: .45; animation: flotar 18s ease-in-out infinite alternate; }
+    .blob.b1 { background: var(--celeste); top: -160px; left: -120px; }
+    .blob.b2 { background: var(--verde); bottom: -200px; right: -140px; animation-delay: -6s; opacity: .3; }
+    .blob.b3 { background: var(--violeta); top: 40%; left: 55%; width: 380px; height: 380px; animation-delay: -12s; opacity: .28; }
+    @keyframes flotar { to { transform: translate(80px, 60px) scale(1.15); } }
+    .particula { position: absolute; bottom: -60px; font-size: 26px; opacity: 0; animation: subir linear infinite; user-select: none; }
+    @keyframes subir {
+      0% { transform: translateY(0) rotate(0); opacity: 0; }
+      10% { opacity: .55; }
+      90% { opacity: .35; }
+      100% { transform: translateY(-115vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ---------- Ticker ---------- */
+    .ticker { overflow: hidden; border-bottom: 1px solid var(--line); background: rgba(0,0,0,.25); backdrop-filter: blur(8px); }
+    .ticker-track { display: flex; gap: 40px; width: max-content; padding: 10px 0; animation: deslizar 40s linear infinite; font-size: .9rem; white-space: nowrap; }
+    .ticker-track span b { color: var(--sol); font-weight: 600; margin-left: 6px; }
+    @keyframes deslizar { to { transform: translateX(-50%); } }
+
+    main { max-width: 1080px; margin: 0 auto; padding: 0 16px 56px; }
+
+    /* ---------- Hero ---------- */
+    .hero { position: relative; display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; align-items: center; padding: 48px 0 36px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--verde); box-shadow: 0 0 0 0 var(--verde); animation: latido 2s infinite; }
+    @keyframes latido { 70% { box-shadow: 0 0 0 10px rgba(47,227,154,0); } 100% { box-shadow: 0 0 0 0 rgba(47,227,154,0); } }
+    h1 { font-size: clamp(2.2rem, 6vw, 3.8rem); line-height: 1.02; margin: 16px 0 12px; letter-spacing: -0.03em; font-weight: 800; }
+    h1 .grad { background: linear-gradient(90deg, var(--celeste), #fff 45%, var(--celeste)); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: brillo 6s linear infinite; }
+    @keyframes brillo { to { background-position: 200% center; } }
+    .hero p.sub { color: var(--muted); margin: 0; font-size: 1.05rem; max-width: 46ch; }
+
+    .hero-card {
+      position: relative; padding: 26px; border-radius: 24px; overflow: hidden;
+      background: linear-gradient(145deg, rgba(116,195,255,.22), rgba(155,123,255,.14));
+      border: 1px solid rgba(116,195,255,.35); box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      animation: aparecer .8s .15s both cubic-bezier(.2,.8,.2,1);
+    }
+    .sol { position: absolute; right: -50px; top: -50px; width: 190px; height: 190px; opacity: .9; animation: girar 40s linear infinite; }
+    @keyframes girar { to { transform: rotate(360deg); } }
+    .hero-card .label { position: relative; color: #dbe8ff; font-size: .9rem; display: flex; align-items: center; gap: 8px; }
+    .hero-card .big { position: relative; font-size: clamp(2.6rem, 7vw, 3.6rem); font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; margin: 6px 0 4px; }
+    .hero-card .row { position: relative; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: .85rem; background: rgba(0,0,0,.25); border: 1px solid var(--line); }
+    .chip.up { color: var(--sol); }
+
+    /* ---------- Barra de acciones ---------- */
+    .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0 18px; }
+    .bar h2 { margin: 0; font-size: 1.4rem; letter-spacing: -0.01em; }
+    .acciones { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .countdown { color: var(--muted); font-size: .88rem; }
+    .countdown b { color: var(--text); font-variant-numeric: tabular-nums; }
     button {
-      font: inherit; font-size: .9rem; border: 1px solid var(--line); background: var(--card);
-      color: var(--text); padding: 8px 14px; border-radius: 999px; cursor: pointer;
+      font: inherit; cursor: pointer; color: var(--text); border: 1px solid var(--line);
+      background: var(--glass-strong); padding: 9px 16px; border-radius: 999px; transition: transform .2s, background .2s, border-color .2s;
+      display: inline-flex; align-items: center; gap: 8px;
     }
-    button:hover { border-color: var(--accent); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
-    .card.destacada { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-    .card h2 { margin: 0 0 12px; font-size: 1rem; font-weight: 600; }
+    button:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.3); transform: translateY(-1px); }
+    button:active { transform: translateY(0) scale(.97); }
+    button svg { transition: transform .6s; }
+    button.cargando svg { animation: girar .8s linear infinite; }
+
+    /* ---------- Tarjetas ---------- */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .card {
+      --c: var(--celeste);
+      position: relative; overflow: hidden; padding: 20px 22px 18px; border-radius: 20px;
+      background: linear-gradient(160deg, color-mix(in srgb, var(--c) 16%, transparent), var(--glass) 60%);
+      border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+      backdrop-filter: blur(10px); transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s;
+      animation: aparecer .7s both cubic-bezier(.2,.8,.2,1); animation-delay: calc(var(--i) * 80ms + 200ms);
+    }
+    .card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.12) 50%, transparent 70%); transform: translateX(-120%); transition: transform .9s; pointer-events: none; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px color-mix(in srgb, var(--c) 30%, transparent); border-color: var(--c); }
+    .card:hover::after { transform: translateX(120%); }
+    @keyframes aparecer { from { opacity: 0; transform: translateY(24px) scale(.97); } to { opacity: 1; transform: none; } }
+    .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .icono { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: color-mix(in srgb, var(--c) 25%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent); }
+    .card h3 { margin: 0; font-size: 1.08rem; font-weight: 600; }
+    .card .tag { margin-left: auto; font-size: .75rem; padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,.25); color: var(--muted); white-space: nowrap; }
+    .card .tag.pos { color: var(--sol); }
     .vals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .label { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; }
-    .val { font-size: clamp(1.2rem, 2.3vw, 1.5rem); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .lbl { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; }
+    .val { font-size: clamp(1.35rem, 2.6vw, 1.7rem); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
     .val.na { color: var(--muted); font-weight: 400; }
-    .conv { margin-top: 28px; }
-    .conv h2 { margin: 0 0 12px; font-size: 1.1rem; }
-    .conv-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .conv input, .conv select {
-      font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
-      background: var(--bg); color: var(--text); min-width: 0;
-    }
-    .conv input { width: 140px; }
-    .conv .result { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .estado { color: var(--muted); font-size: .85rem; margin-top: 24px; }
-    .estado a { color: var(--accent); }
-    .error { color: var(--error); }
-    .skeleton { height: 112px; background: linear-gradient(90deg, var(--card), var(--line), var(--card)); background-size: 200% 100%; animation: sh 1.2s infinite; border-radius: 16px; }
+    .meter { margin-top: 16px; height: 6px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+    .meter span { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 50%, transparent), var(--c)); transition: width 1.4s cubic-bezier(.2,.8,.2,1); }
+    .skeleton { height: 160px; border-radius: 20px; background: linear-gradient(90deg, var(--glass), rgba(255,255,255,.12), var(--glass)); background-size: 200% 100%; animation: sh 1.2s infinite; }
     @keyframes sh { to { background-position: -200% 0; } }
+
+    /* ---------- Conversor ---------- */
+    .conv {
+      margin-top: 32px; padding: 26px; border-radius: 24px; position: relative; overflow: hidden;
+      background: linear-gradient(135deg, rgba(47,227,154,.16), rgba(116,195,255,.12) 50%, rgba(255,201,60,.12));
+      border: 1px solid rgba(47,227,154,.3); animation: aparecer .8s .5s both cubic-bezier(.2,.8,.2,1);
+    }
+    .conv h2 { margin: 0 0 4px; font-size: 1.4rem; }
+    .conv p { margin: 0 0 18px; color: var(--muted); font-size: .92rem; }
+    .conv-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: end; }
+    .campo label { display: block; font-size: .78rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .08em; }
+    .campo input, .campo select {
+      width: 100%; font: inherit; font-size: 1.1rem; padding: 12px 14px; border-radius: 14px;
+      border: 1px solid var(--line); background: rgba(0,0,0,.28); color: var(--text); outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .campo select option { background: var(--bg2); }
+    .campo input:focus, .campo select:focus { border-color: var(--verde); box-shadow: 0 0 0 3px rgba(47,227,154,.2); }
+    .swap { width: 48px; height: 48px; padding: 0; justify-content: center; border-radius: 50%; background: var(--verde); color: #04281a; border: 0; font-size: 1.2rem; font-weight: 700; }
+    .swap:hover { background: #5cf0b4; }
+    .swap.giro svg { transform: rotate(180deg); }
+    .resultado { margin-top: 20px; padding: 18px 20px; border-radius: 16px; background: rgba(0,0,0,.25); display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .resultado .r { font-size: clamp(1.8rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; color: var(--verde); font-variant-numeric: tabular-nums; }
+    .resultado .det { color: var(--muted); font-size: .9rem; }
+
+    footer { margin-top: 32px; color: var(--muted); font-size: .85rem; text-align: center; }
+    footer a { color: var(--celeste); }
+    .error { color: var(--error); }
+
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; padding-top: 32px; }
+      .conv-grid { grid-template-columns: 1fr; }
+      .swap { justify-self: center; transform: rotate(90deg); }
+      .swap:hover { transform: rotate(90deg) translateY(-1px); }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .particula { display: none; }
+    }
   </style>
 </head>
 <body>
+  <div class="bg" aria-hidden="true">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+    <div id="particulas"></div>
+  </div>
+
+  <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"><span>Cargando cotizaciones…</span></div></div>
+
   <main>
-    <header>
+    <section class="hero">
       <div>
-        <h1>💵 Dólar hoy en Argentina</h1>
-        <p class="sub">Cotizaciones en pesos · se actualizan cada 2 horas</p>
+        <span class="eyebrow"><span class="dot"></span> En vivo desde dolarhoy.com</span>
+        <h1>El dólar hoy <br><span class="grad">en Argentina</span></h1>
+        <p class="sub">Blue, oficial, MEP, contado con liqui, cripto y tarjeta. Todo en un solo lugar y actualizado cada 2 horas.</p>
       </div>
-      <button id="recargar" type="button">Recargar</button>
-    </header>
+      <div class="hero-card" id="heroCard">
+        <svg class="sol" viewBox="0 0 200 200" aria-hidden="true">
+          <defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#ffb800"/></radialGradient></defs>
+          <!-- 32 rayos alternando rectos y ondulados, como el Sol de Mayo (se generan en JS) -->
+          <g id="rayos" fill="#ffc93c" opacity=".5"></g>
+          <circle cx="100" cy="100" r="36" fill="url(#g)"/>
+        </svg>
+        <div class="label"><span>💙</span> Dólar blue · venta</div>
+        <div class="big" id="heroValor">$ —</div>
+        <div class="row" id="heroChips"></div>
+      </div>
+    </section>
+
+    <div class="bar">
+      <h2>Cotizaciones</h2>
+      <div class="acciones">
+        <span class="countdown" id="countdown"></span>
+        <button id="recargar" type="button" aria-label="Recargar cotizaciones">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+          Recargar
+        </button>
+      </div>
+    </div>
 
     <section class="grid" id="grid" aria-live="polite">
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
     </section>
 
-    <section class="card conv" id="conv" hidden>
-      <h2>Conversor</h2>
-      <div class="conv-row">
-        <input id="monto" type="number" inputmode="decimal" min="0" step="any" value="100" aria-label="Monto">
-        <select id="sentido" aria-label="Sentido">
-          <option value="usd">USD → pesos</option>
-          <option value="ars">Pesos → USD</option>
-        </select>
-        <select id="tipo" aria-label="Tipo de dólar"></select>
-        <span>=</span>
-        <span class="result" id="resultado">—</span>
+    <section class="conv" id="conv" hidden>
+      <h2>🔁 Conversor</h2>
+      <p>Calculá cuántos pesos necesitás o cuántos dólares te dan.</p>
+      <div class="conv-grid">
+        <div class="campo">
+          <label for="monto" id="montoLbl">Dólares (USD)</label>
+          <input id="monto" type="number" inputmode="decimal" min="0" step="any" value="100">
+        </div>
+        <button class="swap" id="swap" type="button" aria-label="Invertir conversión">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 4 3 8M7 4l4 4M17 20V4m0 16-4-4m4 4 4-4"/></svg>
+        </button>
+        <div class="campo">
+          <label for="tipo">Tipo de dólar</label>
+          <select id="tipo"></select>
+        </div>
+      </div>
+      <div class="resultado">
+        <span class="r" id="resultado">—</span>
+        <span class="det" id="detalle"></span>
       </div>
     </section>
 
-    <p class="estado" id="estado"></p>
+    <footer id="estado"></footer>
   </main>
 
   <script>
     const TWO_HOURS = 2 * 60 * 60 * 1000;
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const ars = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 });
     const usd = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+    const pct = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1, signDisplay: 'always' });
     const $ = (id) => document.getElementById(id);
-    let datos = null;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    let datos = null, sentido = 'usd';
 
-    const fmt = (n) => n == null ? '<span class="val na">—</span>' : `<span class="val">${ars.format(n)}</span>`;
-    const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    // Estilo de cada tipo de dólar: ícono y color
+    const ESTILOS = [
+      { m: /blue/i, icono: '💙', color: '#74c3ff' },
+      { m: /oficial/i, icono: '🏦', color: '#2fe39a' },
+      { m: /mep|bolsa/i, icono: '📈', color: '#9b7bff' },
+      { m: /usdc|cripto|digital/i, icono: '🪙', color: '#ffc93c' },
+      { m: /liqui|ccl/i, icono: '🌎', color: '#5ee7df' },
+      { m: /tarjeta/i, icono: '💳', color: '#ff6fa8' },
+    ];
+    const estilo = (n) => ESTILOS.find((e) => e.m.test(n)) || { icono: '💵', color: '#74c3ff' };
+
+    // ---------- Sol de Mayo (rayos) ----------
+    (() => {
+      const g = $('rayos'); let html = '';
+      for (let i = 0; i < 32; i++) {
+        const a = i * 360 / 32;
+        html += i % 2
+          ? `<path transform="rotate(${a} 100 100)" d="M100 58 q-5 -10 0 -18 q5 -8 0 -18 l3 0 q5 10 0 18 q-5 8 0 18z"/>`
+          : `<polygon transform="rotate(${a} 100 100)" points="96,60 104,60 100,14"/>`;
+      }
+      g.innerHTML = html;
+    })();
+
+    // ---------- Partículas de fondo ----------
+    if (!reduceMotion) {
+      const cont = $('particulas'), simbolos = ['💵', '$', '🪙', '💲', '💵', '$'];
+      for (let i = 0; i < 16; i++) {
+        const s = document.createElement('span');
+        s.className = 'particula';
+        s.textContent = simbolos[i % simbolos.length];
+        s.style.left = Math.random() * 100 + 'vw';
+        s.style.fontSize = 16 + Math.random() * 22 + 'px';
+        s.style.animationDuration = 14 + Math.random() * 16 + 's';
+        s.style.animationDelay = -Math.random() * 30 + 's';
+        if (s.textContent === '$') s.style.color = Math.random() > .5 ? '#2fe39a' : '#74c3ff';
+        cont.appendChild(s);
+      }
+    }
+
+    // ---------- Contador animado ----------
+    function contar(el, hasta, fmt = ars) {
+      if (hasta == null) { el.textContent = '—'; return; }
+      if (reduceMotion) { el.textContent = fmt.format(hasta); return; }
+      const dur = 1100, t0 = performance.now();
+      const paso = (t) => {
+        const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt.format(hasta * e);
+        if (p < 1) requestAnimationFrame(paso);
+      };
+      requestAnimationFrame(paso);
+    }
+
+    const brecha = (v, of) => (v && of) ? (v / of - 1) * 100 : null;
 
     function render() {
-      $('grid').innerHTML = datos.cotizaciones.map((c, i) => `
-        <article class="card${i === 0 ? ' destacada' : ''}">
-          <h2>${esc(c.nombre)}</h2>
-          <div class="vals">
-            <div><div class="label">Compra</div>${fmt(c.compra)}</div>
-            <div><div class="label">Venta</div>${fmt(c.venta)}</div>
-          </div>
-        </article>`).join('');
+      const lista = datos.cotizaciones;
+      const oficial = lista.find((c) => /oficial/i.test(c.nombre))?.venta;
+      const max = Math.max(...lista.map((c) => c.venta || c.compra || 0));
 
+      // Hero
+      const blue = lista.find((c) => /blue/i.test(c.nombre)) || lista[0];
+      contar($('heroValor'), blue.venta);
+      const b = brecha(blue.venta, oficial);
+      $('heroChips').innerHTML =
+        `<span class="chip">Compra ${blue.compra != null ? ars.format(blue.compra) : '—'}</span>` +
+        (b != null ? `<span class="chip up">▲ Brecha ${pct.format(b)}% vs oficial</span>` : '');
+
+      // Ticker (duplicado para el loop infinito)
+      const items = lista.map((c) => `<span>${estilo(c.nombre).icono} ${esc(c.nombre)}<b>${c.venta != null ? ars.format(c.venta) : '—'}</b></span>`).join('');
+      $('ticker').innerHTML = items + items;
+
+      // Tarjetas
+      $('grid').innerHTML = lista.map((c, i) => {
+        const e = estilo(c.nombre), br = /oficial/i.test(c.nombre) ? null : brecha(c.venta, oficial);
+        const ancho = ((c.venta || c.compra || 0) / max) * 100;
+        return `
+        <article class="card" style="--c:${e.color};--i:${i}">
+          <div class="card-head">
+            <div class="icono">${e.icono}</div>
+            <h3>${esc(c.nombre)}</h3>
+            ${br != null ? `<span class="tag pos">${pct.format(br)}% vs oficial</span>` : /oficial/i.test(c.nombre) ? '<span class="tag">Referencia</span>' : ''}
+          </div>
+          <div class="vals">
+            <div><div class="lbl">Compra</div><div class="val${c.compra == null ? ' na' : ''}" data-v="${c.compra ?? ''}">—</div></div>
+            <div><div class="lbl">Venta</div><div class="val${c.venta == null ? ' na' : ''}" data-v="${c.venta ?? ''}">—</div></div>
+          </div>
+          <div class="meter"><span data-w="${ancho}"></span></div>
+        </article>`;
+      }).join('');
+      document.querySelectorAll('.val[data-v]').forEach((el) => contar(el, el.dataset.v === '' ? null : Number(el.dataset.v)));
+      requestAnimationFrame(() => setTimeout(() => document.querySelectorAll('.meter span').forEach((s) => s.style.width = s.dataset.w + '%'), 250));
+
+      // Conversor
       const sel = $('tipo'), prev = sel.value;
-      sel.innerHTML = datos.cotizaciones.map((c, i) => `<option value="${i}">${esc(c.nombre)}</option>`).join('');
+      sel.innerHTML = lista.map((c, i) => `<option value="${i}">${estilo(c.nombre).icono} ${esc(c.nombre)}</option>`).join('');
       if (prev && sel.options[prev]) sel.value = prev;
       $('conv').hidden = false;
       convertir();
@@ -122,31 +344,55 @@
       if (!datos) return;
       const c = datos.cotizaciones[$('tipo').value];
       const monto = parseFloat($('monto').value) || 0;
-      if ($('sentido').value === 'usd') {
-        const p = c.venta ?? c.compra; // pesos que pagás por cada dólar
-        $('resultado').textContent = p ? ars.format(monto * p) : '—';
+      const p = c.venta ?? c.compra;
+      if (!p) { $('resultado').textContent = '—'; $('detalle').textContent = ''; return; }
+      if (sentido === 'usd') {
+        $('resultado').textContent = ars.format(monto * p);
+        $('detalle').textContent = `${usd.format(monto)} a ${ars.format(p)} c/u`;
       } else {
-        const p = c.venta ?? c.compra;
-        $('resultado').textContent = p ? usd.format(monto / p) : '—';
+        $('resultado').textContent = usd.format(monto / p);
+        $('detalle').textContent = `${ars.format(monto)} a ${ars.format(p)} por dólar`;
       }
     }
 
+    // ---------- Cuenta regresiva hasta la próxima actualización ----------
+    function tick() {
+      if (!datos?.proximaActualizacion) return;
+      const ms = new Date(datos.proximaActualizacion) - Date.now();
+      if (ms <= 0) { $('countdown').innerHTML = 'Actualización disponible'; return; }
+      const h = Math.floor(ms / 3.6e6), m = Math.floor(ms % 3.6e6 / 6e4), s = Math.floor(ms % 6e4 / 1000);
+      $('countdown').innerHTML = `Próxima actualización en <b>${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s</b>`;
+    }
+
     async function cargar() {
+      const btn = $('recargar');
+      btn.classList.add('cargando');
       try {
         const r = await fetch('/api/cotizaciones');
         const j = await r.json();
         if (!r.ok) throw new Error(j.error || 'Error al obtener cotizaciones');
         datos = j;
         render();
+        tick();
       } catch (e) {
         if (!datos) $('grid').innerHTML = '';
         $('estado').innerHTML = `<span class="error">No se pudieron cargar las cotizaciones: ${esc(e.message)}</span>`;
+      } finally {
+        btn.classList.remove('cargando');
       }
     }
 
-    ['monto', 'sentido', 'tipo'].forEach((id) => $(id).addEventListener('input', convertir));
+    ['monto', 'tipo'].forEach((id) => $(id).addEventListener('input', convertir));
+    $('swap').addEventListener('click', () => {
+      sentido = sentido === 'usd' ? 'ars' : 'usd';
+      $('swap').classList.toggle('giro');
+      $('montoLbl').textContent = sentido === 'usd' ? 'Dólares (USD)' : 'Pesos (ARS)';
+      $('monto').value = sentido === 'usd' ? 100 : 100000;
+      convertir();
+    });
     $('recargar').addEventListener('click', cargar);
     cargar();
+    setInterval(tick, 1000);
     setInterval(cargar, TWO_HOURS);
   </script>
 </body>
