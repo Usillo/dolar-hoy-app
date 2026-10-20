@@ -1,7 +1,7 @@
 {
   "name": "Dólar Hoy Argentina",
   "short_name": "Dólar Hoy",
-  "description": "Cotización del dólar en pesos argentinos, actualizada cada 2 horas.",
+  "description": "Cotización del dólar en pesos argentinos, actualizada cada 10 minutos.",
   "lang": "es-AR",
   "start_url": "/",
   "display": "standalone",

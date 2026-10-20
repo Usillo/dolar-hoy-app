@@ -1,9 +1,9 @@
 // Toma las cotizaciones de https://dolarhoy.com/ y las devuelve en JSON.
-// La respuesta queda cacheada en el CDN de Vercel por 2 horas (s-maxage=7200),
-// así que dolarhoy.com se consulta como máximo una vez cada 2 horas.
+// La respuesta queda cacheada en el CDN de Vercel por 10 minutos (s-maxage=600),
+// así que dolarhoy.com se consulta como máximo una vez cada 10 minutos.
 
 const SOURCE = 'https://dolarhoy.com/';
-const CACHE_SECONDS = 2 * 60 * 60;
+const CACHE_SECONDS = 10 * 60;
 
 const decode = (s) =>
   s
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     const data = parse(await r.text());
     if (!data.cotizaciones.length) throw new Error('No se encontraron cotizaciones en la página');
 
-    res.setHeader('Cache-Control', `public, s-maxage=${CACHE_SECONDS}, stale-while-revalidate=600`);
+    res.setHeader('Cache-Control', `public, s-maxage=${CACHE_SECONDS}, stale-while-revalidate=60`);
     res.status(200).json({
       fuente: SOURCE,
       obtenido: new Date().toISOString(),

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dólar Hoy Argentina</title>
-  <meta name="description" content="Cotización del dólar blue, oficial, MEP, CCL, cripto y tarjeta en pesos argentinos. Se actualiza cada 2 horas.">
+  <meta name="description" content="Cotización del dólar blue, oficial, MEP, CCL, cripto y tarjeta en pesos argentinos. Se actualiza cada 10 minutos.">
   <meta name="theme-color" content="#0a1230">
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
   <link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
@@ -14,7 +14,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta property="og:title" content="Dólar Hoy Argentina">
-  <meta property="og:description" content="Cotización del dólar en pesos, actualizada cada 2 horas.">
+  <meta property="og:description" content="Cotización del dólar en pesos, actualizada cada 10 minutos.">
   <meta property="og:image" content="https://dolar-hoy-app.vercel.app/icons/icon-512.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -186,7 +186,7 @@
         </div>
         <span class="eyebrow"><span class="dot"></span> En vivo desde dolarhoy.com</span>
         <h1>El dólar hoy <br><span class="grad">en Argentina</span></h1>
-        <p class="sub">Blue, oficial, MEP, contado con liqui, cripto y tarjeta. Todo en un solo lugar y actualizado cada 2 horas.</p>
+        <p class="sub">Blue, oficial, MEP, contado con liqui, cripto y tarjeta. Todo en un solo lugar y actualizado cada 10 minutos.</p>
       </div>
       <div class="hero-card" id="heroCard">
         <svg class="sol" viewBox="0 0 200 200" aria-hidden="true">
@@ -242,7 +242,7 @@
   </main>
 
   <script>
-    const TWO_HOURS = 2 * 60 * 60 * 1000;
+    const INTERVALO = 10 * 60 * 1000;
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const ars = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 });
     const usd = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
@@ -377,7 +377,7 @@
       const ms = new Date(datos.proximaActualizacion) - Date.now();
       if (ms <= 0) { $('countdown').innerHTML = 'Actualización disponible'; return; }
       const h = Math.floor(ms / 3.6e6), m = Math.floor(ms % 3.6e6 / 6e4), s = Math.floor(ms % 6e4 / 1000);
-      $('countdown').innerHTML = `Próxima actualización en <b>${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s</b>`;
+      $('countdown').innerHTML = `Próxima actualización en <b>${h ? h + 'h ' : ''}${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s</b>`;
     }
 
     async function cargar() {
@@ -409,7 +409,7 @@
     $('recargar').addEventListener('click', cargar);
     cargar();
     setInterval(tick, 1000);
-    setInterval(cargar, TWO_HOURS);
+    setInterval(cargar, INTERVALO);
   </script>
 </body>
 </html>
